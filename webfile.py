@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
-from flask import Flask, render_template, Response
-from flask import Flask, jsonify
+from flask import Flask, render_template, Response, jsonify
+
 # Initialize Flask app
 app = Flask(__name__)
 
@@ -100,15 +100,15 @@ def index():
 @app.route('/video_feed')
 def video_feed():
     return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
 @app.route("/api", methods=["GET"])
 def hello():
     return jsonify({"message": "Hello, World!"})
 
-# Optional: Another route
 @app.route("/api/another", methods=["GET"])
 def another():
     return jsonify({"message": "This is another endpoint!"})
 
-# Start the Flask app
+# Run Flask app for local development
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8080)
