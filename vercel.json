@@ -2,14 +2,26 @@
   "version": 2,
   "builds": [
     {
-      "src": "webfile.py",
+      "src": "api/webfile.py",
       "use": "@vercel/python"
     }
   ],
   "routes": [
     {
-      "src": "/api(.*)",
-      "dest": "webfile.py"
+      "src": "/",
+      "dest": "/templates/index.html"
+    },
+    {
+      "src": "/video_feed",
+      "dest": "/api/webfile.py"
+    },
+    {
+      "src": "/api",
+      "dest": "/api/webfile.py"
+    },
+    {
+      "src": "/api/another",
+      "dest": "/api/webfile.py"
     }
   ]
 }
