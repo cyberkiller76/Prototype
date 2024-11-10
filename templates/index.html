@@ -3,21 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Face Tracking Web App</title>
-    <style>
-        body {
-            text-align: center;
-        }
-        video {
-            width: 100%;
-            max-width: 800px;
-        }
-    </style>
+    <title>Face Detection with Webcam</title>
 </head>
 <body>
-    <h1>Face Tracking Web App</h1>
-    <div>
-        <img src="{{ url_for('video_feed') }}" width="100%" />
-    </div>
+    <h1>Face Detection with Webcam</h1>
+    <video id="webcam" width="640" height="480" autoplay></video>
+    <canvas id="canvas" style="display:none;"></canvas>
+    <script>
+        // Access the webcam using getUserMedia API
+        const video = document.getElementById("webcam");
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+
+        async function startWebcam() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+            } catch (err) {
+                console.error("Error accessing webcam: ", err);
+            }
+        }
+
+        // Capture frames and send them to the server for processing
+        function sendFrameToServer() {
+            // Draw the current frame to the canvas
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // Convert the canvas to a base64-encoded image (JPEG or PNG)
+            const frameData = canvas.toDataURL("image/jpeg");
+
+            // Send the frame to the server for processing (using fetch)
+            fetch("/process_frame", {
+                method: "POST",
+                body: JSON.stringify({ image: frameData }),
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Handle the response (e.g., display processed data)
+                console.log(data);
+            })
+            .catch(err => {
+                console.error("Error sending frame to server: ", err);
+            });
+        }
+
+        // Start the webcam
+        startWebcam();
+
+        // Continuously send frames to the server every 100ms
+        setInterval(sendFrameToServer, 100);
+    </script>
 </body>
 </html>
