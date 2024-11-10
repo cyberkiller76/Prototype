@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Tracking Web App</title>
+    <style>
+        body {
+            text-align: center;
+        }
+        video {
+            width: 100%;
+            max-width: 800px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Face Tracking Web App</h1>
+    <div>
+        <img src="{{ url_for('video_feed') }}" width="100%" />
+    </div>
+</body>
+</html>
