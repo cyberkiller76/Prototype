@@ -1,5 +1,8 @@
 import cv2
 import numpy as np
+import base64
+from io import BytesIO
+from PIL import Image
 from flask import Flask, render_template, Response, jsonify
 
 # Initialize Flask app
@@ -90,6 +93,46 @@ def gen_frames():
 
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n\r\n')
+
+def decode_base64_image(base64_str):
+    # Remove the prefix "data:image/jpeg;base64,"
+    img_data = base64_str.split(',')[1]
+    img_data = base64.b64decode(img_data)
+
+    # Convert binary data to image
+    img = Image.open(BytesIO(img_data))
+    img_np = np.array(img)
+    return cv2.cvtColor(img_np, cv2.COLOR_RGB2BGR)
+
+# Route to process frames sent from the client
+@app.route("/process_frame", methods=["POST"])
+def process_frame():
+    try:
+        # Get the base64 image from the request
+        data = request.get_json()
+        base64_image = data['image']
+
+        # Decode the image
+        frame = decode_base64_image(base64_image)
+
+        # Convert to grayscale for face detection
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
+
+        # Draw rectangles around faces
+        for (x, y, w, h) in faces:
+            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+
+        # Encode the processed frame back to base64
+        _, buffer = cv2.imencode('.jpg', frame)
+        processed_image = base64.b64encode(buffer).decode('utf-8')
+
+        return jsonify({"processed_image": processed_image})
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+
+
 
 # Route for rendering the webpage
 @app.route('/')
