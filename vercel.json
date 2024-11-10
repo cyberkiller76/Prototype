@@ -23,5 +23,9 @@
       "src": "/api/another",
       "dest": "/api/webfile.py"
     }
+    {
+      "src": "/process_frame",
+      "dest": "/api/face_detection.py"
+    }
   ]
 }
